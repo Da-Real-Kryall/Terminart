@@ -145,41 +145,31 @@ fn main() {
             let (new_pixel, quant_error) = find_closest_colour(&old_pixel[0..3]);
         
             if x as usize != pixel_colours[0].len() - 1 && y as usize != pixel_colours.len() - 1 {
-                pixel_colours[y as usize][1 + x as usize][0] += quant_error[0] * 7.0 / 16.0;
-                pixel_colours[y as usize][1 + x as usize][1] += quant_error[1] * 7.0 / 16.0;
-                pixel_colours[y as usize][1 + x as usize][2] += quant_error[2] * 7.0 / 16.0;
-                
+
+                if x != pixel_colours[0].len() as u32 - 1 {
+                    pixel_colours[y as usize][1 + x as usize][0] += quant_error[0] * 7.0 / 16.0;
+                    pixel_colours[y as usize][1 + x as usize][1] += quant_error[1] * 7.0 / 16.0;
+                    pixel_colours[y as usize][1 + x as usize][2] += quant_error[2] * 7.0 / 16.0;
+                }
                 if x != 0 {
                     pixel_colours[1 + y as usize][x as usize - 1][0] += quant_error[0] * 3.0 / 16.0;
                     pixel_colours[1 + y as usize][x as usize - 1][1] += quant_error[1] * 3.0 / 16.0;
                     pixel_colours[1 + y as usize][x as usize - 1][2] += quant_error[2] * 3.0 / 16.0;
                 }
-            
-                pixel_colours[1 + y as usize][x as usize][0] += quant_error[0] * 5.0 / 16.0;
-                pixel_colours[1 + y as usize][x as usize][1] += quant_error[1] * 5.0 / 16.0;
-                pixel_colours[1 + y as usize][x as usize][2] += quant_error[2] * 5.0 / 16.0;
-            
-                pixel_colours[1 + y as usize][1 + x as usize][0] += quant_error[0] * 1.0 / 16.0;
-                pixel_colours[1 + y as usize][1 + x as usize][1] += quant_error[1] * 1.0 / 16.0;
-                pixel_colours[1 + y as usize][1 + x as usize][2] += quant_error[2] * 1.0 / 16.0;
+                if y != pixel_colours.len() as u32 - 1 {
+                    pixel_colours[1 + y as usize][x as usize][0] += quant_error[0] * 5.0 / 16.0;
+                    pixel_colours[1 + y as usize][x as usize][1] += quant_error[1] * 5.0 / 16.0;
+                    pixel_colours[1 + y as usize][x as usize][2] += quant_error[2] * 5.0 / 16.0;
+                    if x != pixel_colours[0].len() as u32 - 1 {
+                        pixel_colours[1 + y as usize][1 + x as usize][0] += quant_error[0] * 1.0 / 16.0;
+                        pixel_colours[1 + y as usize][1 + x as usize][1] += quant_error[1] * 1.0 / 16.0;
+                        pixel_colours[1 + y as usize][1 + x as usize][2] += quant_error[2] * 1.0 / 16.0;
+                    }
+                }
             }
             dithered_pixels[y as usize][x as usize] = new_pixel;
         }
     }
-
-    //include alpha in quadruplets
-    //quadruplets of the dithered colours
-    //let mut quadruplet_pixels: Vec<Vec<[usize; 4]>> = vec![vec![[0; 4]; image_char_width as usize / 2]; image_char_height as usize / 2];
-    //for y in 0..image_char_height as usize/2 {
-    //    for x in 0..image_char_width as usize/2 {
-    //        quadruplet_pixels[y][x] = [
-    //            dithered_pixels[y][x],
-    //            dithered_pixels[y][x+1],
-    //            dithered_pixels[y+1][x],
-    //            dithered_pixels[y+1][x+1],
-    //        ];
-    //    }
-    //}
 
     let mut buffer = String::new();
     //evaluate pixels in lots of 2
@@ -192,95 +182,4 @@ fn main() {
         buffer.push_str("\x1b[0m\n");
     }
     print!("{}", buffer);
-
-    //for y in 0..quadruplet_pixels.len() { //here i'll evaluate each quadruplet
-    //    for x in 0..quadruplet_pixels[0].len() {
-    //        let quadruplet = quadruplet_pixels[y][x];
-    //        //and then write the resulting character to the buffer
-    //        let mut colours: Vec<usize> = Vec::new();
-    //        if !colours.contains(&quadruplet[0]) {
-    //            colours.push(quadruplet_pixels[y][x][0]);
-    //        }
-    //        if !colours.contains(&quadruplet[1]) {
-    //            colours.push(quadruplet[1]);
-    //        }
-    //        if !colours.contains(&quadruplet[2]) {
-    //            colours.push(quadruplet[2]);
-    //        }
-    //        if !colours.contains(&quadruplet[3]) {
-    //            colours.push(quadruplet[3]);
-    //        }
-    //        while colours.len() > 2 {
-    //            //let index = (y+x)%4;
-    //            for index in 0..4 {
-    //                let i = (index+y+x)%4;
-    //                let mut num = 0;
-    //                //check if the colour that occurs at this index in quadruplet_pixels[y][x] only appears once.
-    //                if quadruplet[i] == quadruplet[0] {
-    //                    num += 1;
-    //                }
-    //                if quadruplet[i] == quadruplet[1] {
-    //                    num += 1;
-    //                }
-    //                if quadruplet[i] == quadruplet[2] {
-    //                    num += 1;
-    //                }
-//
-//
-//
-    //            }
-    //        }
-    //        //indexes of quadruplet colours within colours
-    //        //let arrangement: [usize; 4] = [
-    //        //    colours.iter().position(|&x| x == quadruplet_pixels[y][x][0]).unwrap(),
-    //        //    colours.iter().position(|&x| x == quadruplet_pixels[y][x][1]).unwrap(),
-    //        //    colours.iter().position(|&x| x == quadruplet_pixels[y][x][2]).unwrap(),
-    //        //    colours.iter().position(|&x| x == quadruplet_pixels[y][x][3]).unwrap(),
-    //        //];
-    //        //match colours.len() {
-    //        //    1 => {
-    //        //        buffer.push_str(&format!("\x1b[38;5{}m█", colours[0]));
-    //        //    },
-    //        //    2 => {
-    //        //        match arrangement
-    //        //    },
-    //        //    3 => {
-    //        //    },
-    //        //    4 => {
-    //        //    },
-    //        //    _ => {}
-    //        //}
-    //    }
-    //    buffer.push_str("\x1b[0m\n");
-    //}
-    //print!("{}", buffer);
-    //for y in 0..print_pixels.len() {
-    //    for x in 0..print_pixels[0].len() { 
-    //        let old_pixel = print_pixels[y][x];
-    //        let (new_pixel, quant_error) = find_closest_colour(&old_pixel[0..3]);
-    //    
-    //        if x != print_pixels[0].len() - 1 && y != print_pixels.len() - 1 {
-    //            print_pixels[y as usize][1 + x as usize][0] += quant_error[0] * 7.0 / 16.0;
-    //            print_pixels[y as usize][1 + x as usize][1] += quant_error[1] * 7.0 / 16.0;
-    //            print_pixels[y as usize][1 + x as usize][2] += quant_error[2] * 7.0 / 16.0;
-    //            
-    //            if x != 0 {
-    //                print_pixels[1 + y as usize][x as usize - 1][0] += quant_error[0] * 3.0 / 16.0;
-    //                print_pixels[1 + y as usize][x as usize - 1][1] += quant_error[1] * 3.0 / 16.0;
-    //                print_pixels[1 + y as usize][x as usize - 1][2] += quant_error[2] * 3.0 / 16.0;
-    //            }
-    //        
-    //            print_pixels[1 + y as usize][x as usize][0] += quant_error[0] * 5.0 / 16.0;
-    //            print_pixels[1 + y as usize][x as usize][1] += quant_error[1] * 5.0 / 16.0;
-    //            print_pixels[1 + y as usize][x as usize][2] += quant_error[2] * 5.0 / 16.0;
-    //        
-    //            print_pixels[1 + y as usize][1 + x as usize][0] += quant_error[0] * 1.0 / 16.0;
-    //            print_pixels[1 + y as usize][1 + x as usize][1] += quant_error[1] * 1.0 / 16.0;
-    //            print_pixels[1 + y as usize][1 + x as usize][2] += quant_error[2] * 1.0 / 16.0;
-    //        }
-    //        buffer.push_str(&format!("\x1b[48;5;{}m ", new_pixel));
-    //    }
-    //    buffer.push_str("\x1b[0m\n");
-    //}
-    //print!("{}", buffer);
 }
